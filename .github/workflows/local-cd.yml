@@ -1,0 +1,68 @@
+
+name: Local Docker CI-CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout latest code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        shell: powershell
+        run: docker build -t my-app:latest .
+
+      - name: Deploy container
+        shell: powershell
+        run: |
+          $existing = docker ps -aq --filter "name=^my-app-container$"
+
+          if ($existing) {
+            docker rm -f my-app-container
+          }
+
+          docker run -d `
+            --name my-app-container `
+            --restart unless-stopped `
+            -p 3000:3000 `
+            my-app:latest
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "Failed to start the new container"
+          }
+
+      - name: Verify application
+        shell: powershell
+        run: |
+          $healthy = $false
+
+          for ($i = 0; $i -lt 15; $i++) {
+            try {
+              $response = Invoke-WebRequest `
+                -Uri "http://localhost:3000/health" `
+                -TimeoutSec 2
+
+              if ($response.StatusCode -eq 200) {
+                $healthy = $true
+                break
+              }
+            } catch {
+              Start-Sleep -Seconds 2
+            }
+          }
+
+          if (-not $healthy) {
+            docker logs my-app-container
+            throw "Application health check failed"
+          }
+
+          Write-Host "Deployment successful"

@@ -1,0 +1,11 @@
+﻿{
+  "agentId": 2,
+  "agentName": "RAHUL",
+  "poolId": 1,
+  "poolName": "Default",
+  "serverUrl": "https://pipelinesghubeus7.actions.githubusercontent.com/zBsTZSXuqoxeMAXsnGH6FjMD4cFx5cYMBwdAco473ZWaFkCPBW/",
+  "gitHubUrl": "https://github.com/RahulT09/Docker",
+  "workFolder": "_work",
+  "useV2Flow": true,
+  "serverUrlV2": "https://broker.actions.githubusercontent.com/"
+}
