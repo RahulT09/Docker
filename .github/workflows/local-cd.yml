@@ -41,36 +41,28 @@ jobs:
           }
 
       
+      
       - name: Verify application
         shell: powershell
         run: |
           $healthy = $false
 
           for ($i = 0; $i -lt 15; $i++) {
-            try {
-              $response = Invoke-WebRequest `
-                -Uri "http://127.0.0.1:3000/health" `
-                -TimeoutSec 3
+            $status = & curl.exe -sS -o NUL -w "%{http_code}" --max-time 3 http://127.0.0.1:3000/health
 
-              Write-Host "HTTP status: $($response.StatusCode)"
-
-              if ($response.StatusCode -eq 200) {
-                $healthy = $true
-                break
-              }
-            } catch {
-              Write-Host "Attempt $($i + 1) failed: $($_.Exception.Message)"
-              Start-Sleep -Seconds 2
+            if ($LASTEXITCODE -eq 0 -and "$status" -eq "200") {
+              $healthy = $true
+              Write-Host "Health check passed: HTTP 200"
+              break
             }
+
+            Write-Host "Attempt $($i + 1): HTTP status $status"
+            Start-Sleep -Seconds 2
           }
 
           if (-not $healthy) {
-            Write-Host "Container status:"
             docker ps -a
-
-            Write-Host "Container logs:"
             docker logs my-app-container
-
             throw "Application health check failed"
           }
 
