@@ -1,0 +1,12 @@
+﻿{
+  "repositoryName": "RahulT09/Docker",
+  "pipelineDirectory": "Docker",
+  "workspaceDirectory": "Docker\\Docker",
+  "repositories": {
+    "RahulT09/Docker": {
+      "repositoryPath": "Docker\\Docker",
+      "lastRunOn": "10/28/2026 22:25:39 +05:30"
+    }
+  },
+  "lastRunOn": "10/28/2026 22:25:39 +05:30"
+}
