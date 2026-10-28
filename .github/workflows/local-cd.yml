@@ -40,29 +40,37 @@ jobs:
             throw "Failed to start the new container"
           }
 
-            - name: Verify application
+      
+      - name: Verify application
         shell: powershell
         run: |
           $healthy = $false
 
-          for ($i = 0; $i -lt 30; $i++) {
+          for ($i = 0; $i -lt 15; $i++) {
             try {
               $response = Invoke-WebRequest `
                 -Uri "http://127.0.0.1:3000/health" `
                 -TimeoutSec 3
+
+              Write-Host "HTTP status: $($response.StatusCode)"
 
               if ($response.StatusCode -eq 200) {
                 $healthy = $true
                 break
               }
             } catch {
+              Write-Host "Attempt $($i + 1) failed: $($_.Exception.Message)"
               Start-Sleep -Seconds 2
             }
           }
 
           if (-not $healthy) {
+            Write-Host "Container status:"
             docker ps -a
+
+            Write-Host "Container logs:"
             docker logs my-app-container
+
             throw "Application health check failed"
           }
 
